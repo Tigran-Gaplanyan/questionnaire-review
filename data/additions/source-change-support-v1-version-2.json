@@ -1,0 +1,21 @@
+{
+  "fictional": true,
+  "generated_by": "handwritten; see data/GENERATION.md",
+  "scenario": "source-change",
+  "description": "Publishes version 2 of SUPPORT-v1 (same stable document ID) with changed email-support hours. Applied only by the source-change demonstration, never at initial import.",
+  "revisions": [
+    {
+      "id": "SUPPORT-v1",
+      "version": 2,
+      "date": "2026-10-01",
+      "status": "current",
+      "supersedes": null,
+      "passages": [
+        {
+          "id": "SUPPORT-v1:p1",
+          "text": "Email support is available Monday to Friday, 08:00 to 18:00 UTC. Live chat is not offered."
+        }
+      ]
+    }
+  ]
+}

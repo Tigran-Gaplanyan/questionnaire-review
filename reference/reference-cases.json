@@ -1,0 +1,178 @@
+{
+  "description": "Answer key for the five minimum-demonstration checks plus additional checks. Written from source inspection of data/starter/ and data/additions/ before the application existed (see reference/VERIFICATION.md). Never generated from application output.",
+  "reviewer_actions": {
+    "approve_q1_corrected": {
+      "question_id": "Q1",
+      "answer": "No. CSV export is available on paid plans only, so free-plan users cannot export CSV.",
+      "citations": ["EXPORT-v2:p1"],
+      "approved_by": "Product reviewer"
+    },
+    "approve_q3_as_drafted": {
+      "question_id": "Q3",
+      "approved_by": "Support reviewer"
+    },
+    "unapproved_edit_q4": {
+      "question_id": "Q4",
+      "answer": "No - live chat is not offered (UNAPPROVED reviewer edit).",
+      "author": "Support reviewer"
+    },
+    "repeat_question_after_source_change": {
+      "topic": "support",
+      "text": "When is email support available?"
+    }
+  },
+  "cases": [
+    {
+      "id": "RC1-supported",
+      "brief_check": "A supported question receives a draft answer whose cited passages exist and support its claims.",
+      "origin": "seed: expected-seed-results.json Q3",
+      "input": {"questionnaire": "seed", "question_id": "Q3"},
+      "expected": {
+        "status": "answered",
+        "must_cite": ["SUPPORT-v1:p1"],
+        "may_cite_only": ["SUPPORT-v1:p1"],
+        "answer_must_mention_each_group": [["Monday"], ["Friday"], ["09:00", "9:00", "9 am", "9am", "9 a.m."], ["17:00", "5 pm", "5pm", "5 p.m."], ["UTC"]],
+        "excerpts_verbatim": true,
+        "model_support_check": "supported"
+      },
+      "rule": "domain.md rule 1: only supplied documents are evidence. SUPPORT-v1:p1 states the hours; no other passage mentions email support."
+    },
+    {
+      "id": "RC2-unsupported",
+      "brief_check": "The unsupported question stays unresolved and offers an appropriate review route without inventing a product capability.",
+      "origin": "seed: expected-seed-results.json Q2",
+      "input": {"questionnaire": "seed", "question_id": "Q2"},
+      "expected": {
+        "status": "unresolved",
+        "owner": "Product reviewer",
+        "answer_must_not_start_with": ["yes", "no"],
+        "reason_must_mention_any": ["JSON"],
+        "not_approved": true
+      },
+      "rule": "domain.md rule 1: an undocumented feature is unknown. No passage mentions JSON. Topic 'exports' maps to 'Product reviewer' in seed.json owners."
+    },
+    {
+      "id": "RC3-superseded-conflict",
+      "brief_check": "The outdated policy's conflict is visible, and the answer uses the document that explicitly supersedes it.",
+      "origin": "seed: expected-seed-results.json Q1",
+      "input": {"questionnaire": "seed", "question_id": "Q1"},
+      "expected": {
+        "status": "answered",
+        "answer_must_start_with": "no",
+        "answer_must_mention_any": ["paid"],
+        "must_cite": ["EXPORT-v2:p1"],
+        "must_not_cite": ["EXPORT-v1:p1"],
+        "replaced_text_shown": ["EXPORT-v1:p1"]
+      },
+      "rule": "domain.md rule 2: EXPORT-v2.supersedes = 'EXPORT-v1', so EXPORT-v2:p1 is authoritative; EXPORT-v1:p1 stays visible as replaced text."
+    },
+    {
+      "id": "RC4-approved-reuse",
+      "brief_check": "A reviewer's approved correction appears when the same question is asked again; an unapproved edit is not reused as approved knowledge.",
+      "origin": "seed: expected-seed-results.json approval-reuse, plus addition questionnaire-b QB1/QB3",
+      "steps": [
+        "Process the seed questionnaire.",
+        "reviewer_actions.approve_q1_corrected",
+        "reviewer_actions.approve_q3_as_drafted",
+        "reviewer_actions.unapproved_edit_q4",
+        "Process data/additions/questionnaire-b.json."
+      ],
+      "expected": {
+        "QB1": {
+          "status": "approved",
+          "reused": true,
+          "answer_equals": "reviewer_actions.approve_q1_corrected.answer",
+          "approval_record_has": ["approved_by", "approved_at", "sources"],
+          "sources": [{"passage_id": "EXPORT-v2:p1", "doc_id": "EXPORT-v2", "version": 2}],
+          "model_calls_for_item": 0
+        },
+        "QB3": {
+          "status_not": "approved",
+          "reused": false,
+          "answer_not_equals": "reviewer_actions.unapproved_edit_q4.answer"
+        }
+      },
+      "rule": "domain.md rule 3: only an approved answer can be reused; an unapproved edit is a draft. Exact question-text match."
+    },
+    {
+      "id": "RC5-reload-and-source-change",
+      "brief_check": "Reloading preserves approval and evidence. Changing a referenced source version makes its approved answer require review.",
+      "origin": "seed: expected-seed-results.json source-change, plus addition source-change-support-v1-version-2.json",
+      "steps": [
+        "Continue from RC4. Read the saved state from a new process (restart).",
+        "Apply data/additions/source-change-support-v1-version-2.json (SUPPORT-v1 version 1 -> 2).",
+        "Ask reviewer_actions.repeat_question_after_source_change again."
+      ],
+      "expected": {
+        "after_restart": {
+          "approvals_active_for_questions": ["Can free-plan users export CSV?", "When is email support available?"],
+          "item_status": {"seed/Q1": "approved", "seed/Q3": "approved", "buyer-b/QB1": "approved", "buyer-b/QB2": "approved"},
+          "approval_sources": {"Can free-plan users export CSV?": ["EXPORT-v2:p1"], "When is email support available?": ["SUPPORT-v1:p1"]}
+        },
+        "after_source_change": {
+          "approval_status": {"When is email support available?": "needs_review", "Can free-plan users export CSV?": "active"},
+          "approval_reason_must_mention": ["SUPPORT-v1"],
+          "item_status": {"seed/Q3": "unresolved", "buyer-b/QB2": "unresolved", "seed/Q1": "approved"}
+        },
+        "repeat_question": {
+          "status": "unresolved",
+          "reused": false,
+          "owner": "Support reviewer",
+          "reason_must_mention_any": ["review", "changed"]
+        }
+      },
+      "rule": "domain.md rule 3: mark an approved answer for review if a referenced document version changes. Q1's approval cites only EXPORT-v2 and is unaffected."
+    }
+  ],
+  "additional_checks": [
+    {
+      "id": "AC1-unresolved-conflict-no-supersedes",
+      "input": {"questionnaire": "buyer-b", "question_id": "QB4"},
+      "expected": {
+        "status": "unresolved",
+        "owner": "Product reviewer",
+        "conflict_passages_include": ["EXPORT-SCHEDULE-v1:p1", "EXPORT-FAQ-v1:p1"]
+      },
+      "rule": "domain.md rule 2: a newer date alone does not establish authority. Neither document supersedes the other."
+    },
+    {
+      "id": "AC2-undocumented-not-negative",
+      "input": {"questionnaire": "buyer-b", "question_id": "QB5"},
+      "expected": {
+        "status": "unresolved",
+        "owner": "Product reviewer",
+        "answer_must_not_start_with": ["yes", "no"]
+      },
+      "rule": "domain.md rule 1: ACCESS-v1:p1 documents email/password sign-in but says nothing about SSO, so SSO is unknown, not unsupported."
+    },
+    {
+      "id": "AC3-reworded-question-not-reused",
+      "input": {"questionnaire": "buyer-b", "question_id": "QB6"},
+      "expected": {
+        "reused": false,
+        "status": "answered",
+        "must_cite": ["EXPORT-v2:p1"],
+        "answer_must_start_with": "no"
+      },
+      "rule": "Exact-match reuse only (brief). The wording differs from Q1, so a fresh draft is produced; EXPORT-v2:p1 still answers it."
+    },
+    {
+      "id": "AC4-simulated-invalid-output",
+      "simulated": true,
+      "input": {"questionnaire": "seed", "question_id": "Q5", "simulate": "invalid_output"},
+      "expected": {"status": "failed", "error_type": "invalid_output", "provenance": "simulated", "other_items_processed": true}
+    },
+    {
+      "id": "AC5-simulated-api-failure",
+      "simulated": true,
+      "input": {"questionnaire": "seed", "question_id": "Q6", "simulate": "api_error"},
+      "expected": {"status": "failed", "error_type": "api_error", "provenance": "simulated", "other_items_processed": true}
+    },
+    {
+      "id": "AC6-simulated-fabricated-citation",
+      "simulated": true,
+      "input": {"questionnaire": "seed", "question_id": "Q7", "simulate": "fabricated_citation"},
+      "expected": {"status": "unresolved", "failed_checks_include": ["citations_exist"]}
+    }
+  ]
+}

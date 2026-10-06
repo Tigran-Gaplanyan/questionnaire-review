@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Documents</h1>
+<p class="muted small">Authority comes only from explicit <code>supersedes</code> fields; dates and the declared status are shown for information. Publishing a new version re-checks every approved answer that cites the document.</p>
+
+<div class="panel">
+  <h3>Source-change scenario</h3>
+  <form method="post" action="{{ url_for('scenario') }}" class="row">
+    <select name="scenario" style="max-width:420px">{% for key, path in scenarios.items() %}<option value="{{ key }}">{{ path.name }}</option>{% endfor %}</select>
+    <button class="primary">Publish</button>
+    <span class="small muted">SUPPORT-v1 version 1 → 2 (hours change to 08:00–18:00)</span>
+  </form>
+</div>
+
+{% for f in findings %}<div class="small {{ 'bad' if f.level == 'error' else 'warn' }}">[{{ f.scope }}] {{ f.message }}</div>{% endfor %}
+
+{% for doc_id, d in corpus.documents.items() %}
+<div class="panel">
+  <div class="row">
+    <strong>{{ d.id }}</strong>
+    <span class="badge {{ 's-superseded' if corpus.is_superseded(d.id) else 's-active' }}">{{ corpus.authority(d.id) }}</span>
+    <span class="small muted">version {{ d.version }} · revision {{ d.revision }} · {{ d.date }}{% if d.supersedes %} · supersedes {{ d.supersedes }}{% endif %} · declared status "{{ d.declared_status }}" · from {{ d.source }}</span>
+  </div>
+  {% for p in d.passages %}<div class="passage"><div class="meta"><code>{{ p.id }}</code></div>{{ p.text }}</div>{% endfor %}
+  {% set older = history[doc_id][1:] %}
+  {% if older %}
+    <h3>Earlier revisions (kept for reviewers)</h3>
+    {% for r in older %}{% for p in r.passages %}<div class="passage old"><div class="meta">revision {{ r.revision }} · version {{ r.version }} · {{ r.date }} · <code>{{ p.id }}</code></div>{{ p.text }}</div>{% endfor %}{% endfor %}
+  {% endif %}
+  <details>
+    <summary class="small">Publish a new version of {{ d.id }}</summary>
+    <form method="post" action="{{ url_for('revise', doc_id=d.id) }}">
+      <div class="row small"><label>Version <input type="text" name="version" value="{{ d.version + 1 }}" style="width:70px"></label>
+        <label>Date <input type="text" name="date" value="{{ d.date }}" style="width:120px"></label>
+        <label>Reviewer <input type="text" name="reviewer" style="width:160px"></label></div>
+      {% for p in d.passages %}<label class="small"><code>{{ p.id }}</code><textarea name="passage:{{ p.id }}">{{ p.text }}</textarea></label>{% endfor %}
+      <label class="small">Change note<input type="text" name="note"></label>
+      <div class="row"><button class="primary">Publish version</button></div>
+    </form>
+  </details>
+</div>
+{% endfor %}
+{% endblock %}

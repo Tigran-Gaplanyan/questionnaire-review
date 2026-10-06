@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Questionnaire queue</h1>
+<div class="tiles">
+  <a class="tile" href="{{ url_for('queue', status='answered') }}"><div class="n">{{ summary.answered }}</div><div class="l">Answered · awaiting approval</div></a>
+  <a class="tile" href="{{ url_for('queue', status='unresolved') }}"><div class="n">{{ summary.unresolved }}</div><div class="l">Unresolved · needs a reviewer</div></a>
+  <a class="tile" href="{{ url_for('queue', status='approved') }}"><div class="n">{{ summary.approved }}</div><div class="l">Approved ({{ summary.approved_reused }} reused)</div></a>
+  <a class="tile" href="{{ url_for('queue', status='failed') }}"><div class="n">{{ summary.failed }}</div><div class="l">Failed processing</div></a>
+</div>
+
+<div class="grid-3">
+<div>
+  <div class="panel">
+    <div class="row filters small">
+      <strong>Status:</strong>
+      <a href="{{ url_for('queue', questionnaire=questionnaire) }}">{% if not status %}<strong>all</strong>{% else %}all{% endif %}</a>
+      {% for s in statuses %}<a href="{{ url_for('queue', status=s, questionnaire=questionnaire) }}">{% if s == status %}<strong>{{ s }}</strong>{% else %}{{ s }}{% endif %}</a>{% endfor %}
+      <strong style="margin-left:12px">Questionnaire:</strong>
+      <a href="{{ url_for('queue', status=status) }}">{% if not questionnaire %}<strong>all</strong>{% else %}all{% endif %}</a>
+      {% for q in questionnaires %}<a href="{{ url_for('queue', status=status, questionnaire=q.id) }}">{% if q.id == questionnaire %}<strong>{{ q.id }}</strong>{% else %}{{ q.id }}{% endif %}</a>{% endfor %}
+      {% if questionnaire %}<a style="margin-left:auto" href="{{ url_for('export_markdown', questionnaire_id=questionnaire) }}">Export {{ questionnaire }} (approved answers + open items)</a>{% endif %}
+    </div>
+    <table>
+      <thead><tr><th>Item</th><th>Question</th><th>Status</th><th>Draft / reason</th><th>Owner</th></tr></thead>
+      <tbody>
+      {% for i in items %}{% set d = drafts[i.id] %}
+        <tr>
+          <td class="small"><a href="{{ url_for('item_detail', item_id=i.id) }}">{{ i.questionnaire_id }}/{{ i.question_id }}</a></td>
+          <td><a href="{{ url_for('item_detail', item_id=i.id) }}">{{ i.question_text }}</a></td>
+          <td><span class="badge s-{{ i.status }}">{{ i.status }}</span>{% if i.reused %}<br><span class="small muted">reused approval #{{ i.approval_id }}</span>{% endif %}</td>
+          <td class="small">
+            {% if d and d.answer %}{{ d.answer }}{% if d.kind == 'reviewer_edit' and i.status != 'approved' %} <span class="badge s-pending">unapproved edit</span>{% endif %}{% endif %}
+            {% for r in i.reasons %}<div class="muted">⚠ {{ r.text }}</div>{% endfor %}
+          </td>
+          <td class="small">{{ i.owner or '—' }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="muted">No questions yet. Run a questionnaire on the right.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div>
+  <div class="panel">
+    <h3>Run a questionnaire</h3>
+    <form method="post" action="{{ url_for('run_questionnaire') }}" class="row">
+      <select name="questionnaire">{% for key, path in questionnaire_files.items() %}<option value="{{ key }}">{{ key }} — {{ path.name }}</option>{% endfor %}</select>
+      <button class="primary">Import &amp; draft</button>
+    </form>
+    <p class="small muted">Questions already processed are skipped; failed ones are retried.</p>
+  </div>
+  <div class="panel">
+    <h3>Ask a question</h3>
+    <form method="post" action="{{ url_for('ask') }}">
+      <input type="text" name="text" placeholder="e.g. Can free-plan users export CSV?" required>
+      <div class="row"><select name="topic">{% for t, o in owners.items() %}<option value="{{ t }}">{{ t }} ({{ o }})</option>{% endfor %}</select><button class="primary">Ask</button></div>
+    </form>
+    <p class="small muted">An exact repeat of an approved question reuses the approved answer (no model call).</p>
+  </div>
+  <div class="panel">
+    <h3>Why questions need review</h3>
+    {% for code, n in summary.reasons.items() %}<div class="row small"><span class="badge s-unresolved">{{ n }}</span> {{ code.replace('_', ' ') }}</div>{% else %}<p class="small muted">Nothing unresolved.</p>{% endfor %}
+    <h3>Routed to</h3>
+    {% for owner, n in summary.unresolved_by_owner.items() %}<div class="row small"><span class="badge s-pending">{{ n }}</span> {{ owner }}</div>{% else %}<p class="small muted">—</p>{% endfor %}
+    <h3>Approved answers</h3>
+    {% for s, n in summary.approvals.items() %}<div class="row small"><span class="badge s-{{ s }}">{{ n }}</span> {{ s.replace('_', ' ') }}</div>{% else %}<p class="small muted">None yet.</p>{% endfor %}
+  </div>
+  {% if findings %}
+  <div class="panel">
+    <h3>Input validation</h3>
+    {% for f in findings %}<div class="small {{ 'bad' if f.level == 'error' else 'warn' }}">[{{ f.scope }}] {{ f.message }}</div>{% endfor %}
+  </div>
+  {% endif %}
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{
+  "fictional": true,
+  "generated_by": "handwritten; see data/GENERATION.md",
+  "documents": [
+    {
+      "id": "EXPORT-SCHEDULE-v1",
+      "version": 1,
+      "date": "2026-07-01",
+      "status": "current",
+      "supersedes": null,
+      "passages": [
+        {
+          "id": "EXPORT-SCHEDULE-v1:p1",
+          "text": "Scheduled exports run once a week."
+        }
+      ]
+    },
+    {
+      "id": "EXPORT-FAQ-v1",
+      "version": 1,
+      "date": "2026-09-01",
+      "status": "current",
+      "supersedes": null,
+      "passages": [
+        {
+          "id": "EXPORT-FAQ-v1:p1",
+          "text": "Scheduled exports run every day."
+        }
+      ]
+    }
+  ]
+}

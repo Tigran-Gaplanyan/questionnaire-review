@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="small"><a href="{{ url_for('item_detail', item_id=call.item_id) }}">← Item</a></p>
+<h1>Model call #{{ call.id }} · {{ call.purpose }} <span class="badge p-{{ call.provenance }}">{{ call.provenance }}</span></h1>
+{% if call.provenance == 'simulated' %}<div class="bad">SIMULATED failure injected for testing. This is not a model response.</div>
+{% elif call.provenance == 'replay' %}<div class="warn">Replayed from a saved real response (no new API call). Recorded {{ call.recorded_at }}.</div>
+{% elif call.provenance == 'live' %}<div class="good">New live API call. Saved for replay to <code>{{ call.replay_path }}</code>.</div>{% endif %}
+<div class="panel">
+<table class="small"><tbody>
+  <tr><th>Result</th><td>{{ 'ok' if call.ok else 'failed: ' ~ call.error_type }}{% if call.error_message %} — {{ call.error_message }}{% endif %}</td></tr>
+  <tr><th>Model requested / served</th><td><code>{{ call.model_requested }}</code> / <code>{{ call.model_served or '—' }}</code></td></tr>
+  <tr><th>Prompt</th><td><code>qra/prompts/{{ call.prompt_name }}.md</code></td></tr>
+  <tr><th>Request hash</th><td><code>{{ call.request_hash }}</code></td></tr>
+  <tr><th>Replay file</th><td><code>{{ call.replay_path or '—' }}</code></td></tr>
+  <tr><th>Response / request id</th><td><code>{{ call.response_id or '—' }}</code> / <code>{{ call.request_id or '—' }}</code></td></tr>
+  <tr><th>Stop reason</th><td>{{ call.stop_reason or '—' }}</td></tr>
+  <tr><th>Usage</th><td><code>{{ call.usage | tojson }}</code></td></tr>
+</tbody></table>
+</div>
+<h2>Raw model output</h2>
+<pre>{{ call.raw_text or '(none)' }}</pre>
+{% if call.parsed %}<h2>Validated output</h2><pre>{{ call.parsed | tojson(indent=2) }}</pre>{% endif %}
+{% endblock %}

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Questionnaire Review{% endblock %}</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6b66; --line: #e3e2dc;
+    --accent: #2f5d8a; --ok: #2e7d4f; --warn: #a86400; --bad: #b3261e; --info: #5b4a9e;
+    --ok-bg: #e7f3ec; --warn-bg: #fdf1dd; --bad-bg: #fbe7e5; --info-bg: #eeebf7; --mark: #fff2a8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #161614; --panel: #1f1f1d; --ink: #ecebe6; --muted: #a3a29b; --line: #34332f;
+      --accent: #8ab4e0; --ok: #7cc79a; --warn: #e6b062; --bad: #f08a80; --info: #b5a8ec;
+      --ok-bg: #1f3328; --warn-bg: #3a2e18; --bad-bg: #3d2220; --info-bg: #2a2640; --mark: #5c5320; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 12px 24px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+  header .brand { font-weight: 650; }
+  header nav a { margin-right: 16px; color: var(--accent); text-decoration: none; }
+  header .mode { margin-left: auto; font-size: 13px; color: var(--muted); }
+  main { max-width: 1280px; margin: 0 auto; padding: 20px 24px 60px; }
+  a { color: var(--accent); }
+  h1 { font-size: 22px; margin: 4px 0 12px; } h2 { font-size: 17px; margin: 22px 0 8px; } h3 { font-size: 15px; margin: 14px 0 6px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+  .grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .grid-3 { display: grid; gap: 16px; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  @media (max-width: 900px) { .grid, .grid-3 { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .s-answered { background: var(--info-bg); color: var(--info); }
+  .s-approved, .s-active, .s-supported, .p-live { background: var(--ok-bg); color: var(--ok); }
+  .s-unresolved, .s-needs_review, .p-replay { background: var(--warn-bg); color: var(--warn); }
+  .s-failed, .s-not_supported, .s-contradicted, .p-simulated { background: var(--bad-bg); color: var(--bad); }
+  .s-pending, .s-superseded, .p-test-fake { background: var(--line); color: var(--muted); }
+  .tiles { display: flex; gap: 12px; flex-wrap: wrap; margin: 6px 0 16px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; min-width: 150px; text-decoration: none; color: var(--ink); }
+  .tile .n { font-size: 26px; font-weight: 650; } .tile .l { font-size: 13px; color: var(--muted); }
+  .muted { color: var(--muted); } .small { font-size: 13px; }
+  .warn { background: var(--warn-bg); border-left: 3px solid var(--warn); padding: 8px 12px; border-radius: 4px; margin: 6px 0; }
+  .bad { background: var(--bad-bg); border-left: 3px solid var(--bad); padding: 8px 12px; border-radius: 4px; margin: 6px 0; }
+  .good { background: var(--ok-bg); border-left: 3px solid var(--ok); padding: 8px 12px; border-radius: 4px; margin: 6px 0; }
+  .passage { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin: 8px 0; }
+  .passage.old { opacity: .85; border-style: dashed; }
+  .passage .meta { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  mark { background: var(--mark); color: inherit; padding: 0 1px; }
+  .answer { font-size: 16px; padding: 10px 12px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); white-space: pre-wrap; }
+  textarea, input[type=text], select { width: 100%; font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+  textarea { min-height: 70px; }
+  button { font: inherit; padding: 6px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .filters a { margin-right: 6px; }
+  .flash { padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; background: var(--ok-bg); }
+  .flash.error { background: var(--bad-bg); }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
+  pre { white-space: pre-wrap; word-break: break-word; background: var(--bg); border: 1px solid var(--line); padding: 10px; border-radius: 6px; max-height: 420px; overflow: auto; }
+  label.cite { display: block; margin: 3px 0; }
+</style>
+</head>
+<body>
+<header>
+  <span class="brand">Questionnaire Evidence &amp; Review</span>
+  <nav><a href="{{ url_for('queue') }}">Queue</a><a href="{{ url_for('approvals') }}">Approved answers</a><a href="{{ url_for('documents') }}">Documents</a></nav>
+  <span class="mode">Model: <code>{{ model_name }}</code> · mode <strong>{{ model_mode }}</strong>{% if model_mode == 'replay' %} (saved real responses, no API calls){% endif %}</span>
+</header>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

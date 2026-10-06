@@ -1,0 +1,13 @@
+# Local environment and secrets
+.venv/
+.env
+*.env.local
+
+# Runtime state (recreated by `python -m qra init`)
+var/
+
+# Python / tooling
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store

@@ -1,0 +1,38 @@
+{
+  "fictional": true,
+  "generated_by": "handwritten; see data/GENERATION.md",
+  "questionnaire_id": "buyer-b",
+  "name": "Buyer B follow-up questionnaire",
+  "questions": [
+    {
+      "id": "QB1",
+      "topic": "exports",
+      "text": "Can free-plan users export CSV?"
+    },
+    {
+      "id": "QB2",
+      "topic": "support",
+      "text": "When is email support available?"
+    },
+    {
+      "id": "QB3",
+      "topic": "support",
+      "text": "Is live chat offered?"
+    },
+    {
+      "id": "QB4",
+      "topic": "exports",
+      "text": "How often do scheduled exports run?"
+    },
+    {
+      "id": "QB5",
+      "topic": "access",
+      "text": "Can users sign in with single sign-on (SSO)?"
+    },
+    {
+      "id": "QB6",
+      "topic": "exports",
+      "text": "Can users on the free plan export CSV files?"
+    }
+  ]
+}

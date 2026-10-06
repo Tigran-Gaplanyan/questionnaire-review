@@ -1,0 +1,1115 @@
+{
+  "generated_at": "2026-10-05T13:51:31+00:00",
+  "model_mode": "auto",
+  "model": "claude-opus-5-5",
+  "reference_cases_passed": 5,
+  "reference_cases_total": 5,
+  "additional_checks_passed": 6,
+  "additional_checks_total": 6,
+  "cases": [
+    {
+      "id": "RC1-supported",
+      "brief_check": "A supported question receives a draft answer whose cited passages exist and support its claims.",
+      "simulated": false,
+      "passed": true,
+      "expectations": [
+        {
+          "what": "status",
+          "expected": "answered",
+          "observed": "answered",
+          "passed": true
+        },
+        {
+          "what": "cites required passages",
+          "expected": [
+            "SUPPORT-v1:p1"
+          ],
+          "observed": [
+            "SUPPORT-v1:p1"
+          ],
+          "passed": true
+        },
+        {
+          "what": "cites nothing else",
+          "expected": [
+            "SUPPORT-v1:p1"
+          ],
+          "observed": [
+            "SUPPORT-v1:p1"
+          ],
+          "passed": true
+        },
+        {
+          "what": "answer mentions key facts",
+          "expected": [
+            [
+              "Monday"
+            ],
+            [
+              "Friday"
+            ],
+            [
+              "09:00",
+              "9:00",
+              "9 am",
+              "9am",
+              "9 a.m."
+            ],
+            [
+              "17:00",
+              "5 pm",
+              "5pm",
+              "5 p.m."
+            ],
+            [
+              "UTC"
+            ]
+          ],
+          "observed": "Email support is available Monday to Friday, 09:00 to 17:00 UTC.",
+          "passed": true
+        },
+        {
+          "what": "excerpts appear in the source files",
+          "expected": "all",
+          "observed": "all",
+          "passed": true
+        },
+        {
+          "what": "independent support check (2nd model pass)",
+          "expected": "supported",
+          "observed": "supported",
+          "passed": true
+        }
+      ],
+      "observed_items": [
+        {
+          "ref": "seed/Q3",
+          "question": "When is email support available?",
+          "status": "answered",
+          "owner": "Support reviewer",
+          "reused": false,
+          "answer": "Email support is available Monday to Friday, 09:00 to 17:00 UTC.",
+          "citations": [
+            {
+              "passage_id": "SUPPORT-v1:p1",
+              "excerpt": "Email support is available Monday to Friday, 09:00 to 17:00 UTC."
+            }
+          ],
+          "cited": [
+            "SUPPORT-v1:p1"
+          ],
+          "conflict_passages": [],
+          "replaced_text": [],
+          "support": "supported",
+          "reasons": [],
+          "approval": null,
+          "model_calls": [
+            {
+              "purpose": "draft_answer",
+              "provenance": "live",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/draft_answer/5d6342cc3253c480eb314067.json",
+              "error_type": null
+            },
+            {
+              "purpose": "verify_answer",
+              "provenance": "live",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/verify_answer/4f3ad1e7280ee7429e66fa4c.json",
+              "error_type": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "RC2-unsupported",
+      "brief_check": "The unsupported question stays unresolved and offers an appropriate review route without inventing a product capability.",
+      "simulated": false,
+      "passed": true,
+      "expectations": [
+        {
+          "what": "status",
+          "expected": "unresolved",
+          "observed": "unresolved",
+          "passed": true
+        },
+        {
+          "what": "suggested owner",
+          "expected": "Product reviewer",
+          "observed": "Product reviewer",
+          "passed": true
+        },
+        {
+          "what": "no yes/no capability claim",
+          "expected": "not starting with ['yes', 'no']",
+          "observed": "(empty)",
+          "passed": true
+        },
+        {
+          "what": "reason explains why",
+          "expected": [
+            "JSON"
+          ],
+          "observed": "The documents describe CSV exports (cited here as related context only, not as support) but never mention JSON export, so its availability is unknown.",
+          "passed": true
+        },
+        {
+          "what": "not approved",
+          "expected": true,
+          "observed": true,
+          "passed": true
+        }
+      ],
+      "observed_items": [
+        {
+          "ref": "seed/Q2",
+          "question": "Is JSON export available?",
+          "status": "unresolved",
+          "owner": "Product reviewer",
+          "reused": false,
+          "answer": "",
+          "citations": [
+            {
+              "passage_id": "EXPORT-v2:p1",
+              "excerpt": "CSV exports are available on paid plans only. Free-plan users cannot export CSV."
+            }
+          ],
+          "cited": [
+            "EXPORT-v2:p1"
+          ],
+          "conflict_passages": [
+            "EXPORT-FAQ-v1:p1",
+            "EXPORT-SCHEDULE-v1:p1",
+            "EXPORT-v1:p1",
+            "EXPORT-v2:p1"
+          ],
+          "replaced_text": [
+            "EXPORT-v1:p1"
+          ],
+          "support": null,
+          "reasons": [
+            {
+              "code": "unresolved_conflict",
+              "text": "The documents describe CSV exports (cited here as related context only, not as support) but never mention JSON export, so its availability is unknown."
+            }
+          ],
+          "approval": null,
+          "model_calls": [
+            {
+              "purpose": "draft_answer",
+              "provenance": "live",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/draft_answer/d276537ad10e97790f5db642.json",
+              "error_type": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "RC3-superseded-conflict",
+      "brief_check": "The outdated policy's conflict is visible, and the answer uses the document that explicitly supersedes it.",
+      "simulated": false,
+      "passed": true,
+      "expectations": [
+        {
+          "what": "status",
+          "expected": "answered",
+          "observed": "answered",
+          "passed": true
+        },
+        {
+          "what": "cites required passages",
+          "expected": [
+            "EXPORT-v2:p1"
+          ],
+          "observed": [
+            "EXPORT-v2:p1"
+          ],
+          "passed": true
+        },
+        {
+          "what": "does not cite as support",
+          "expected": [
+            "EXPORT-v1:p1"
+          ],
+          "observed": [
+            "EXPORT-v2:p1"
+          ],
+          "passed": true
+        },
+        {
+          "what": "answer polarity",
+          "expected": "starts with 'no'",
+          "observed": "No. CSV exports are available on paid plans only, and free-plan users cannot export CSV.",
+          "passed": true
+        },
+        {
+          "what": "answer mentions",
+          "expected": [
+            "paid"
+          ],
+          "observed": "No. CSV exports are available on paid plans only, and free-plan users cannot export CSV.",
+          "passed": true
+        },
+        {
+          "what": "replaced text visible to reviewer",
+          "expected": [
+            "EXPORT-v1:p1"
+          ],
+          "observed": [
+            "EXPORT-v1:p1"
+          ],
+          "passed": true
+        }
+      ],
+      "observed_items": [
+        {
+          "ref": "seed/Q1",
+          "question": "Can free-plan users export CSV?",
+          "status": "answered",
+          "owner": "Product reviewer",
+          "reused": false,
+          "answer": "No. CSV exports are available on paid plans only, and free-plan users cannot export CSV.",
+          "citations": [
+            {
+              "passage_id": "EXPORT-v2:p1",
+              "excerpt": "CSV exports are available on paid plans only. Free-plan users cannot export CSV."
+            }
+          ],
+          "cited": [
+            "EXPORT-v2:p1"
+          ],
+          "conflict_passages": [
+            "EXPORT-v1:p1",
+            "EXPORT-v2:p1"
+          ],
+          "replaced_text": [
+            "EXPORT-v1:p1"
+          ],
+          "support": "supported",
+          "reasons": [],
+          "approval": null,
+          "model_calls": [
+            {
+              "purpose": "draft_answer",
+              "provenance": "live",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/draft_answer/22e27c99f95cebe4a82190cb.json",
+              "error_type": null
+            },
+            {
+              "purpose": "verify_answer",
+              "provenance": "live",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/verify_answer/ceb10b5141d9d2310b0abc96.json",
+              "error_type": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "RC4-approved-reuse",
+      "brief_check": "A reviewer's approved correction appears when the same question is asked again; an unapproved edit is not reused as approved knowledge.",
+      "simulated": false,
+      "passed": true,
+      "expectations": [
+        {
+          "what": "approve corrected Q1",
+          "expected": "accepted",
+          "observed": "accepted",
+          "passed": true
+        },
+        {
+          "what": "approve Q3 as drafted",
+          "expected": "accepted",
+          "observed": "accepted",
+          "passed": true
+        },
+        {
+          "what": "save unapproved Q4 edit",
+          "expected": "accepted",
+          "observed": "accepted",
+          "passed": true
+        },
+        {
+          "what": "QB1 status",
+          "expected": "approved",
+          "observed": "approved",
+          "passed": true
+        },
+        {
+          "what": "QB1 reused",
+          "expected": true,
+          "observed": true,
+          "passed": true
+        },
+        {
+          "what": "QB1 shows approved wording",
+          "expected": "No. CSV export is available on paid plans only, so free-plan users cannot export CSV.",
+          "observed": "No. CSV export is available on paid plans only, so free-plan users cannot export CSV.",
+          "passed": true
+        },
+        {
+          "what": "approval record fields",
+          "expected": [
+            "approved_by",
+            "approved_at",
+            "sources"
+          ],
+          "observed": {
+            "approved_by": "Product reviewer",
+            "approved_at": "2026-10-05T13:51:07+00:00"
+          },
+          "passed": true
+        },
+        {
+          "what": "approval sources with document version",
+          "expected": [
+            {
+              "passage_id": "EXPORT-v2:p1",
+              "doc_id": "EXPORT-v2",
+              "version": 2
+            }
+          ],
+          "observed": [
+            {
+              "passage_id": "EXPORT-v2:p1",
+              "doc_id": "EXPORT-v2",
+              "version": 2
+            }
+          ],
+          "passed": true
+        },
+        {
+          "what": "no model call for reused answer",
+          "expected": 0,
+          "observed": 0,
+          "passed": true
+        },
+        {
+          "what": "QB3 not approved",
+          "expected": "status != approved",
+          "observed": "answered",
+          "passed": true
+        },
+        {
+          "what": "QB3 not reused",
+          "expected": false,
+          "observed": false,
+          "passed": true
+        },
+        {
+          "what": "QB3 does not show the unapproved edit",
+          "expected": "!= 'No - live chat is not offered (UNAPPROVED reviewer edit).'",
+          "observed": "No, live chat is not offered; support is provided by email Monday to Friday, 09:00 to 17:00 UTC.",
+          "passed": true
+        }
+      ],
+      "observed_items": [
+        {
+          "ref": "buyer-b/QB1",
+          "question": "Can free-plan users export CSV?",
+          "status": "approved",
+          "owner": "Product reviewer",
+          "reused": true,
+          "answer": "No. CSV export is available on paid plans only, so free-plan users cannot export CSV.",
+          "citations": [
+            {
+              "passage_id": "EXPORT-v2:p1",
+              "excerpt": "CSV exports are available on paid plans only. Free-plan users cannot export CSV."
+            }
+          ],
+          "cited": [
+            "EXPORT-v2:p1"
+          ],
+          "conflict_passages": [],
+          "replaced_text": [],
+          "support": null,
+          "reasons": [],
+          "approval": {
+            "id": 1,
+            "status": "active",
+            "approved_by": "Product reviewer",
+            "approved_at": "2026-10-05T13:51:07+00:00",
+            "answer": "No. CSV export is available on paid plans only, so free-plan users cannot export CSV.",
+            "sources": [
+              {
+                "passage_id": "EXPORT-v2:p1",
+                "doc_id": "EXPORT-v2",
+                "version": 2,
+                "revision": 1,
+                "text_sha": "d6c83b6209be46b79ef9114853407eeeb7b95739b56549ea9643fde82602397b",
+                "text": "CSV exports are available on paid plans only. Free-plan users cannot export CSV."
+              }
+            ],
+            "status_reason": null
+          },
+          "model_calls": []
+        },
+        {
+          "ref": "buyer-b/QB3",
+          "question": "Is live chat offered?",
+          "status": "answered",
+          "owner": "Support reviewer",
+          "reused": false,
+          "answer": "No, live chat is not offered; support is provided by email Monday to Friday, 09:00 to 17:00 UTC.",
+          "citations": [
+            {
+              "passage_id": "SUPPORT-v1:p1",
+              "excerpt": "Live chat is not offered."
+            }
+          ],
+          "cited": [
+            "SUPPORT-v1:p1"
+          ],
+          "conflict_passages": [],
+          "replaced_text": [],
+          "support": "supported",
+          "reasons": [],
+          "approval": null,
+          "model_calls": [
+            {
+              "purpose": "draft_answer",
+              "provenance": "replay",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/draft_answer/61bfe6f234d924fc42562a9a.json",
+              "error_type": null
+            },
+            {
+              "purpose": "verify_answer",
+              "provenance": "replay",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/verify_answer/00d5ed3c3390939a12764a8b.json",
+              "error_type": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "RC5-reload-and-source-change",
+      "brief_check": "Reloading preserves approval and evidence. Changing a referenced source version makes its approved answer require review.",
+      "simulated": false,
+      "passed": true,
+      "expectations": [
+        {
+          "what": "state readable by a new process",
+          "expected": "exit 0",
+          "observed": 0,
+          "passed": true
+        },
+        {
+          "what": "after restart: approval active for 'Can free-plan users export CSV?'",
+          "expected": "active",
+          "observed": "active",
+          "passed": true
+        },
+        {
+          "what": "after restart: approval active for 'When is email support available?'",
+          "expected": "active",
+          "observed": "active",
+          "passed": true
+        },
+        {
+          "what": "after restart: seed/Q1 status",
+          "expected": "approved",
+          "observed": "approved",
+          "passed": true
+        },
+        {
+          "what": "after restart: seed/Q3 status",
+          "expected": "approved",
+          "observed": "approved",
+          "passed": true
+        },
+        {
+          "what": "after restart: buyer-b/QB1 status",
+          "expected": "approved",
+          "observed": "approved",
+          "passed": true
+        },
+        {
+          "what": "after restart: buyer-b/QB2 status",
+          "expected": "approved",
+          "observed": "approved",
+          "passed": true
+        },
+        {
+          "what": "after restart: sources kept for 'Can free-plan users export CSV?'",
+          "expected": [
+            "EXPORT-v2:p1"
+          ],
+          "observed": [
+            "EXPORT-v2:p1"
+          ],
+          "passed": true
+        },
+        {
+          "what": "after restart: sources kept for 'When is email support available?'",
+          "expected": [
+            "SUPPORT-v1:p1"
+          ],
+          "observed": [
+            "SUPPORT-v1:p1"
+          ],
+          "passed": true
+        },
+        {
+          "what": "after change: approval 'When is email support available?'",
+          "expected": "needs_review",
+          "observed": "needs_review",
+          "passed": true
+        },
+        {
+          "what": "after change: approval 'Can free-plan users export CSV?'",
+          "expected": "active",
+          "observed": "active",
+          "passed": true
+        },
+        {
+          "what": "change reason names the source",
+          "expected": [
+            "SUPPORT-v1"
+          ],
+          "observed": "SUPPORT-v1 version changed from 1 to 2",
+          "passed": true
+        },
+        {
+          "what": "after change: seed/Q3 status",
+          "expected": "unresolved",
+          "observed": "unresolved",
+          "passed": true
+        },
+        {
+          "what": "after change: buyer-b/QB2 status",
+          "expected": "unresolved",
+          "observed": "unresolved",
+          "passed": true
+        },
+        {
+          "what": "after change: seed/Q1 status",
+          "expected": "approved",
+          "observed": "approved",
+          "passed": true
+        },
+        {
+          "what": "asked again: status",
+          "expected": "unresolved",
+          "observed": "unresolved",
+          "passed": true
+        },
+        {
+          "what": "asked again: not reused",
+          "expected": false,
+          "observed": false,
+          "passed": true
+        },
+        {
+          "what": "asked again: owner",
+          "expected": "Support reviewer",
+          "observed": "Support reviewer",
+          "passed": true
+        },
+        {
+          "what": "asked again: reason",
+          "expected": [
+            "review",
+            "changed"
+          ],
+          "observed": "Approved answer #2 for this question requires review: SUPPORT-v1 version changed from 1 to 2",
+          "passed": true
+        }
+      ],
+      "observed_items": [
+        {
+          "ref": "adhoc/ASK-1",
+          "question": "When is email support available?",
+          "status": "unresolved",
+          "owner": "Support reviewer",
+          "reused": false,
+          "answer": "Email support is available Monday to Friday, 08:00 to 18:00 UTC.",
+          "citations": [
+            {
+              "passage_id": "SUPPORT-v1:p1",
+              "excerpt": "Email support is available Monday to Friday, 08:00 to 18:00 UTC."
+            }
+          ],
+          "cited": [
+            "SUPPORT-v1:p1"
+          ],
+          "conflict_passages": [],
+          "replaced_text": [],
+          "support": "supported",
+          "reasons": [
+            {
+              "code": "approval_needs_review",
+              "text": "Approved answer #2 for this question requires review: SUPPORT-v1 version changed from 1 to 2"
+            }
+          ],
+          "approval": {
+            "id": 2,
+            "status": "needs_review",
+            "approved_by": "Support reviewer",
+            "approved_at": "2026-10-05T13:51:07+00:00",
+            "answer": "Email support is available Monday to Friday, 09:00 to 17:00 UTC.",
+            "sources": [
+              {
+                "passage_id": "SUPPORT-v1:p1",
+                "doc_id": "SUPPORT-v1",
+                "version": 1,
+                "revision": 1,
+                "text_sha": "5af7b409da65a33c8011f86ca3ce25bdd5fffbae590780b264fa257bc26812ee",
+                "text": "Email support is available Monday to Friday, 09:00 to 17:00 UTC. Live chat is not offered."
+              }
+            ],
+            "status_reason": "SUPPORT-v1 version changed from 1 to 2"
+          },
+          "model_calls": [
+            {
+              "purpose": "draft_answer",
+              "provenance": "live",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/draft_answer/55f51c63c45d1b21ed0a6f83.json",
+              "error_type": null
+            },
+            {
+              "purpose": "verify_answer",
+              "provenance": "live",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/verify_answer/7cafb0458a921a4e6c75b7de.json",
+              "error_type": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "AC1-unresolved-conflict-no-supersedes",
+      "brief_check": "domain.md rule 2: a newer date alone does not establish authority. Neither document supersedes the other.",
+      "simulated": false,
+      "passed": true,
+      "expectations": [
+        {
+          "what": "status",
+          "expected": "unresolved",
+          "observed": "unresolved",
+          "passed": true
+        },
+        {
+          "what": "suggested owner",
+          "expected": "Product reviewer",
+          "observed": "Product reviewer",
+          "passed": true
+        },
+        {
+          "what": "conflicting passages listed",
+          "expected": [
+            "EXPORT-SCHEDULE-v1:p1",
+            "EXPORT-FAQ-v1:p1"
+          ],
+          "observed": [
+            "EXPORT-FAQ-v1:p1",
+            "EXPORT-SCHEDULE-v1:p1"
+          ],
+          "passed": true
+        }
+      ],
+      "observed_items": [
+        {
+          "ref": "buyer-b/QB4",
+          "question": "How often do scheduled exports run?",
+          "status": "unresolved",
+          "owner": "Product reviewer",
+          "reused": false,
+          "answer": "",
+          "citations": [
+            {
+              "passage_id": "EXPORT-FAQ-v1:p1",
+              "excerpt": "Scheduled exports run every day."
+            },
+            {
+              "passage_id": "EXPORT-SCHEDULE-v1:p1",
+              "excerpt": "Scheduled exports run once a week."
+            }
+          ],
+          "cited": [
+            "EXPORT-FAQ-v1:p1",
+            "EXPORT-SCHEDULE-v1:p1"
+          ],
+          "conflict_passages": [
+            "EXPORT-FAQ-v1:p1",
+            "EXPORT-SCHEDULE-v1:p1"
+          ],
+          "replaced_text": [],
+          "support": null,
+          "reasons": [
+            {
+              "code": "unresolved_conflict",
+              "text": "The frequency of scheduled exports is conflicting between two current documents (daily in EXPORT-FAQ-v1 vs. weekly in EXPORT-SCHEDULE-v1)."
+            }
+          ],
+          "approval": null,
+          "model_calls": [
+            {
+              "purpose": "draft_answer",
+              "provenance": "live",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/draft_answer/0a455be18f5908ce9d7724ac.json",
+              "error_type": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "AC2-undocumented-not-negative",
+      "brief_check": "domain.md rule 1: ACCESS-v1:p1 documents email/password sign-in but says nothing about SSO, so SSO is unknown, not unsupported.",
+      "simulated": false,
+      "passed": true,
+      "expectations": [
+        {
+          "what": "status",
+          "expected": "unresolved",
+          "observed": "unresolved",
+          "passed": true
+        },
+        {
+          "what": "suggested owner",
+          "expected": "Product reviewer",
+          "observed": "Product reviewer",
+          "passed": true
+        },
+        {
+          "what": "no yes/no capability claim",
+          "expected": "not starting with ['yes', 'no']",
+          "observed": "(empty)",
+          "passed": true
+        }
+      ],
+      "observed_items": [
+        {
+          "ref": "buyer-b/QB5",
+          "question": "Can users sign in with single sign-on (SSO)?",
+          "status": "unresolved",
+          "owner": "Product reviewer",
+          "reused": false,
+          "answer": "",
+          "citations": [
+            {
+              "passage_id": "ACCESS-v1:p1",
+              "excerpt": "Users can sign in with email and password."
+            }
+          ],
+          "cited": [
+            "ACCESS-v1:p1"
+          ],
+          "conflict_passages": [],
+          "replaced_text": [],
+          "support": null,
+          "reasons": [
+            {
+              "code": "missing_evidence",
+              "text": "The documents do not say whether single sign-on (SSO) is supported; they mention only email and password sign-in, which does not rule out other sign-in methods."
+            }
+          ],
+          "approval": null,
+          "model_calls": [
+            {
+              "purpose": "draft_answer",
+              "provenance": "live",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/draft_answer/a3474056ae22f1b1fa37fbf5.json",
+              "error_type": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "AC3-reworded-question-not-reused",
+      "brief_check": "Exact-match reuse only (brief). The wording differs from Q1, so a fresh draft is produced; EXPORT-v2:p1 still answers it.",
+      "simulated": false,
+      "passed": true,
+      "expectations": [
+        {
+          "what": "status",
+          "expected": "answered",
+          "observed": "answered",
+          "passed": true
+        },
+        {
+          "what": "reused approved answer",
+          "expected": false,
+          "observed": false,
+          "passed": true
+        },
+        {
+          "what": "cites required passages",
+          "expected": [
+            "EXPORT-v2:p1"
+          ],
+          "observed": [
+            "EXPORT-v2:p1"
+          ],
+          "passed": true
+        },
+        {
+          "what": "answer polarity",
+          "expected": "starts with 'no'",
+          "observed": "No. CSV exports are available on paid plans only, and free-plan users cannot export CSV.",
+          "passed": true
+        }
+      ],
+      "observed_items": [
+        {
+          "ref": "buyer-b/QB6",
+          "question": "Can users on the free plan export CSV files?",
+          "status": "answered",
+          "owner": "Product reviewer",
+          "reused": false,
+          "answer": "No. CSV exports are available on paid plans only, and free-plan users cannot export CSV.",
+          "citations": [
+            {
+              "passage_id": "EXPORT-v2:p1",
+              "excerpt": "CSV exports are available on paid plans only. Free-plan users cannot export CSV."
+            }
+          ],
+          "cited": [
+            "EXPORT-v2:p1"
+          ],
+          "conflict_passages": [
+            "EXPORT-v1:p1",
+            "EXPORT-v2:p1"
+          ],
+          "replaced_text": [
+            "EXPORT-v1:p1"
+          ],
+          "support": "supported",
+          "reasons": [],
+          "approval": null,
+          "model_calls": [
+            {
+              "purpose": "draft_answer",
+              "provenance": "live",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/draft_answer/aec22a47b7bd918a679aa96b.json",
+              "error_type": null
+            },
+            {
+              "purpose": "verify_answer",
+              "provenance": "live",
+              "ok": true,
+              "model_served": "claude-opus-5-5",
+              "replay_path": "replays/verify_answer/adf12464adb7d24988293dad.json",
+              "error_type": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "AC4-simulated-invalid-output",
+      "brief_check": "Simulated failure (labelled SIMULATED; not a real model response)",
+      "simulated": true,
+      "passed": true,
+      "expectations": [
+        {
+          "what": "status",
+          "expected": "failed",
+          "observed": "failed",
+          "passed": true
+        },
+        {
+          "what": "error type",
+          "expected": "invalid_output",
+          "observed": "invalid_output",
+          "passed": true
+        },
+        {
+          "what": "labelled as simulated",
+          "expected": "simulated",
+          "observed": "simulated",
+          "passed": true
+        },
+        {
+          "what": "batch continued",
+          "expected": "5 other questions processed",
+          "observed": "5 processed",
+          "passed": true
+        }
+      ],
+      "observed_items": [
+        {
+          "ref": "seed/Q5",
+          "question": "How do users sign in?",
+          "status": "failed",
+          "owner": "Product reviewer",
+          "reused": false,
+          "answer": "",
+          "citations": [],
+          "cited": [],
+          "conflict_passages": [],
+          "replaced_text": [],
+          "support": null,
+          "reasons": [
+            {
+              "code": "model_failure",
+              "text": "Model draft failed (invalid_output): SIMULATED: Output failed schema validation: [{'type': 'json_invalid', 'loc': (), 'msg': 'Invalid JSON: EOF while parsing a string at line 1 column 58', 'input': '{\"status\": \"answered\", \"answer\": \"Subscriptions are billed', 'ctx': {'error': 'EOF while parsing a string at line 1 column 58'}, 'url': 'https://errors.pydantic.dev/2.13/v/json_invalid'}]"
+            }
+          ],
+          "approval": null,
+          "model_calls": [
+            {
+              "purpose": "draft_answer",
+              "provenance": "simulated",
+              "ok": false,
+              "model_served": null,
+              "replay_path": null,
+              "error_type": "invalid_output"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "AC5-simulated-api-failure",
+      "brief_check": "Simulated failure (labelled SIMULATED; not a real model response)",
+      "simulated": true,
+      "passed": true,
+      "expectations": [
+        {
+          "what": "status",
+          "expected": "failed",
+          "observed": "failed",
+          "passed": true
+        },
+        {
+          "what": "error type",
+          "expected": "api_error",
+          "observed": "api_error",
+          "passed": true
+        },
+        {
+          "what": "labelled as simulated",
+          "expected": "simulated",
+          "observed": "simulated",
+          "passed": true
+        },
+        {
+          "what": "batch continued",
+          "expected": "5 other questions processed",
+          "observed": "5 processed",
+          "passed": true
+        }
+      ],
+      "observed_items": [
+        {
+          "ref": "seed/Q6",
+          "question": "Who can invite team members?",
+          "status": "failed",
+          "owner": "Product reviewer",
+          "reused": false,
+          "answer": "",
+          "citations": [],
+          "cited": [],
+          "conflict_passages": [],
+          "replaced_text": [],
+          "support": null,
+          "reasons": [
+            {
+              "code": "model_failure",
+              "text": "Model draft failed (api_error): SIMULATED: model API unavailable (connection refused)."
+            }
+          ],
+          "approval": null,
+          "model_calls": [
+            {
+              "purpose": "draft_answer",
+              "provenance": "simulated",
+              "ok": false,
+              "model_served": null,
+              "replay_path": null,
+              "error_type": "api_error"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "AC6-simulated-fabricated-citation",
+      "brief_check": "Simulated failure (labelled SIMULATED; not a real model response)",
+      "simulated": true,
+      "passed": true,
+      "expectations": [
+        {
+          "what": "status",
+          "expected": "unresolved",
+          "observed": "unresolved",
+          "passed": true
+        },
+        {
+          "what": "failed checks",
+          "expected": [
+            "citations_exist"
+          ],
+          "observed": "citations_exist: Cited passages not in the corpus: EXPORT-v9:p1",
+          "passed": true
+        }
+      ],
+      "observed_items": [
+        {
+          "ref": "seed/Q7",
+          "question": "How often are subscriptions billed?",
+          "status": "unresolved",
+          "owner": "Billing reviewer",
+          "reused": false,
+          "answer": "Subscriptions are billed weekly.",
+          "citations": [
+            {
+              "passage_id": "EXPORT-v9:p1",
+              "excerpt": "billed weekly"
+            }
+          ],
+          "cited": [
+            "EXPORT-v9:p1"
+          ],
+          "conflict_passages": [],
+          "replaced_text": [],
+          "support": null,
+          "reasons": [
+            {
+              "code": "evidence_check_failed",
+              "text": "citations_exist: Cited passages not in the corpus: EXPORT-v9:p1"
+            }
+          ],
+          "approval": null,
+          "model_calls": [
+            {
+              "purpose": "draft_answer",
+              "provenance": "simulated",
+              "ok": true,
+              "model_served": null,
+              "replay_path": null,
+              "error_type": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

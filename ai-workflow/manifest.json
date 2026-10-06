@@ -1,0 +1,215 @@
+{
+  "template": false,
+  "exercise": "Junior AI Engineer take-home, Alternative C (Questionnaire Evidence & Review Workspace), starter pack 2026-10-02",
+  "instructions": "Records every AI configuration used for this exercise. No credentials. Submitted as a single commit; earlier versions are described in the notes.",
+  "categories": {
+    "development_tools_and_models": {
+      "status": "used",
+      "files": [],
+      "notes": "Claude Code desktop app (Code tab) with model claude-opus-5-5 at default settings. Version: bundled skills folder 2.1.286; the `claude` CLI on PATH reports 2.1.282. Desktop app settings are user-level and were not changed for this exercise."
+    },
+    "plugins_and_extensions": {
+      "status": "used",
+      "files": [],
+      "notes": "Built-in Claude Browser pane (desktop app) was used to view the review UI at http://localhost:5050 and to find a UI defect. It is built into the app, so there is nothing to export. Claude in Chrome was available but not used."
+    },
+    "application_models_and_parameters": {
+      "status": "used",
+      "files": [
+        "qra/config.py",
+        "qra/llm.py",
+        "qra/drafting.py",
+        "requirements.txt"
+      ],
+      "notes": "Anthropic Messages API via LangChain (ChatPromptTemplate | ChatAnthropic; langchain-anthropic==1.7.5, langchain-core==1.6.6) over anthropic==1.11.0. Model claude-opus-5-5, structured outputs via ChatAnthropic(output_config=json_schema) (not with_structured_output, whose forced tool call this model rejects), adaptive thinking, effort medium, max_tokens 16000, timeout 120 s, 2 retries, fallbacks=\"default\" (beta server-side-fallback-2026-07-01). No sampling parameters are set. All 21 recordings in replays/ were made through LangChain on 2026-10-05; an earlier direct-SDK set passed the same checks."
+    },
+    "skills": {
+      "status": "used",
+      "files": [
+        ".claude/skills/generate-assignment-data/SKILL.md"
+      ],
+      "notes": "generate-assignment-data comes from the starter pack and was used as the fixture-preparation checklist. The claude-api skill bundled with Claude Code was used as the SDK and model reference; it is not exportable but is reproducible with the same Claude Code version."
+    },
+    "agent_instructions_and_subagents": {
+      "status": "used",
+      "files": [
+        "CLAUDE.md"
+      ],
+      "notes": "CLAUDE.md holds the project rules for any coding agent. One built-in general-purpose subagent (no custom definition file) did a read-only code review of qra/ against data/starter/domain.md. Its findings were reproduced as failing tests before being fixed (tests/test_review_findings.py)."
+    },
+    "hooks_and_scripts": {
+      "status": "not-used",
+      "files": [],
+      "notes": "No custom hooks. The desktop app's built-in behaviour of showing written files in the Browser pane is an app default, not exercise configuration."
+    },
+    "prompts_and_rules": {
+      "status": "used",
+      "files": [
+        "qra/prompts/draft_answer.v1.md",
+        "qra/prompts/verify_answer.v1.md",
+        "CLAUDE.md"
+      ],
+      "notes": "Application prompts are versioned files and the prompt name is stored with every model call. Changing a prompt changes the request hash, so it needs new recordings."
+    },
+    "tool_and_mcp_settings": {
+      "status": "default",
+      "files": [],
+      "notes": "No MCP servers were configured for this project. The preview launcher (.claude/launch.json at the starter-pack root, outside this repo) only ran `python -m qra serve` against a git-ignored preview database. It was not committed because it contains absolute local paths; the equivalent command is in README.md."
+    },
+    "permissions_and_environment_names": {
+      "status": "used",
+      "files": [
+        ".claude/settings.json",
+        ".env.example",
+        "ai-workflow/.env.example",
+        ".gitignore"
+      ],
+      "notes": "Project permissions allow the test and app commands and deny reading .env and git push. The session ran in Claude Code auto permission mode (a user-level setting, not copied). Its classifier blocked one command that would have listed which API-key variables exist in shell profiles; I then asked the user instead. .env is git-ignored and no key is stored in the repository."
+    }
+  },
+  "configuration_records": [
+    {
+      "name": "Claude Code desktop app + claude-opus-5-5",
+      "category": "development_tools_and_models",
+      "purpose": "Generated and checked the fixtures, application, tests and documentation under the candidate's direction",
+      "original_path_or_scope": "user-level desktop application",
+      "saved_path": "",
+      "version_or_commit": "Claude Code 2.1.286 bundle (CLI 2.1.282); model id claude-opus-5-5",
+      "used_during": "whole build session",
+      "status": "used",
+      "redactions": [
+        "User-level settings, account details and unrelated personal configuration were not copied"
+      ]
+    },
+    {
+      "name": "Claude Browser pane",
+      "category": "plugins_and_extensions",
+      "purpose": "Visual check of the review UI; found that the superseded-policy context disappeared after approval (fixed)",
+      "original_path_or_scope": "built into the desktop app",
+      "saved_path": "",
+      "version_or_commit": "desktop app built-in",
+      "used_during": "UI verification",
+      "status": "used",
+      "redactions": []
+    },
+    {
+      "name": "Application model integration",
+      "category": "application_models_and_parameters",
+      "purpose": "Draft answers with citations (pass 1) and judge claim support and contradictions (pass 2)",
+      "original_path_or_scope": "repository",
+      "saved_path": "qra/config.py; qra/llm.py; qra/drafting.py",
+      "version_or_commit": "langchain-anthropic==1.7.5, langchain-core==1.6.6, anthropic==1.11.0; claude-opus-5-5 (earlier version: direct anthropic SDK call, same request)",
+      "used_during": "runtime of the application and evaluation",
+      "status": "used",
+      "redactions": [
+        "ANTHROPIC_API_KEY is read from the environment or a git-ignored .env; never stored"
+      ]
+    },
+    {
+      "name": "Application prompts",
+      "category": "prompts_and_rules",
+      "purpose": "System prompts for draft_answer.v1 and verify_answer.v1",
+      "original_path_or_scope": "repository",
+      "saved_path": "qra/prompts/draft_answer.v1.md; qra/prompts/verify_answer.v1.md",
+      "version_or_commit": "v1 (unchanged since first written)",
+      "used_during": "runtime",
+      "status": "used",
+      "redactions": []
+    },
+    {
+      "name": "generate-assignment-data skill",
+      "category": "skills",
+      "purpose": "Checklist for extending fixtures: fixed rules, separate expected results, no invented policy",
+      "original_path_or_scope": "starter pack skills/generate-assignment-data/SKILL.md",
+      "saved_path": ".claude/skills/generate-assignment-data/SKILL.md",
+      "version_or_commit": "starter pack 2026-10-02 (unchanged)",
+      "used_during": "data preparation",
+      "status": "used",
+      "redactions": []
+    },
+    {
+      "name": "claude-api skill (bundled)",
+      "category": "skills",
+      "purpose": "Current model IDs, structured outputs, refusal fallback and SDK error classes for the Anthropic SDK",
+      "original_path_or_scope": "bundled with Claude Code 2.1.286",
+      "saved_path": "",
+      "version_or_commit": "Claude Code 2.1.286 bundle",
+      "used_during": "before writing qra/llm.py",
+      "status": "not-exportable",
+      "redactions": []
+    },
+    {
+      "name": "Project agent instructions",
+      "category": "agent_instructions_and_subagents",
+      "purpose": "Keeps starter data unchanged, keeps answer keys independent, keeps simulated output out of replays/, never reads .env",
+      "original_path_or_scope": "repository",
+      "saved_path": "CLAUDE.md",
+      "version_or_commit": "unchanged since first written",
+      "used_during": "written at the start of the session; loaded automatically by later Claude Code sessions in this repo",
+      "status": "used",
+      "redactions": []
+    },
+    {
+      "name": "Read-only review subagent (built-in general-purpose)",
+      "category": "agent_instructions_and_subagents",
+      "purpose": "Independent correctness review of rule enforcement (reuse, supersession, invalidation, failure handling, evaluator, web escaping). Prompt summary: 'Do NOT edit files; report confirmed bugs with file:line, a reproduction and a minimal fix; throwaway scripts only in the scratchpad; no network or .env.'",
+      "original_path_or_scope": "Claude Code built-in agent type; no definition file",
+      "saved_path": "",
+      "version_or_commit": "same Claude Code session; findings fixed after the first complete version",
+      "used_during": "after the first complete version, before recording real responses",
+      "status": "used",
+      "redactions": []
+    },
+    {
+      "name": "Hooks",
+      "category": "hooks_and_scripts",
+      "purpose": "",
+      "original_path_or_scope": "",
+      "saved_path": "",
+      "version_or_commit": "",
+      "used_during": "",
+      "status": "not-used",
+      "redactions": []
+    },
+    {
+      "name": "Project permissions",
+      "category": "permissions_and_environment_names",
+      "purpose": "Allow test and app commands; deny reading .env and git push",
+      "original_path_or_scope": "repository",
+      "saved_path": ".claude/settings.json",
+      "version_or_commit": "unchanged since first written",
+      "used_during": "whole session",
+      "status": "used",
+      "redactions": []
+    },
+    {
+      "name": "Environment variable names",
+      "category": "permissions_and_environment_names",
+      "purpose": "API key and optional model, mode, database and effort overrides",
+      "original_path_or_scope": "repository",
+      "saved_path": ".env.example; ai-workflow/.env.example",
+      "version_or_commit": "see .env.example",
+      "used_during": "runtime",
+      "status": "used",
+      "redactions": [
+        "Values are blank; the real key lives only in a local, git-ignored .env"
+      ]
+    },
+    {
+      "name": "Auto permission mode (user-level)",
+      "category": "permissions_and_environment_names",
+      "purpose": "Session-level permission mode of the coding assistant",
+      "original_path_or_scope": "user-level Claude Code setting",
+      "saved_path": "",
+      "version_or_commit": "",
+      "used_during": "whole session",
+      "status": "not-exportable",
+      "redactions": [
+        "User-level settings file not copied; only the fact that auto mode was used is recorded"
+      ]
+    }
+  ],
+  "replay_command": ".venv/bin/python -m qra evaluate --mode replay",
+  "record_command": ".venv/bin/python -m qra evaluate --mode auto",
+  "workflow_example_path": "docs/LLM_USAGE.md"
+}

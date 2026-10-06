@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}{{ item.questionnaire_id }}/{{ item.question_id }} · Review{% endblock %}
+{% block content %}
+<p class="small"><a href="{{ url_for('queue') }}">← Queue</a></p>
+<h1>{{ item.question_text }}</h1>
+<div class="row small">
+  <span class="badge s-{{ item.status }}">{{ item.status }}</span>
+  <span class="muted">{{ item.questionnaire_id }}/{{ item.question_id }} · topic <strong>{{ item.topic }}</strong> · suggested reviewer <strong>{{ item.owner or 'none mapped' }}</strong></span>
+</div>
+{% for r in item.reasons %}<div class="warn small"><strong>{{ r.code.replace('_', ' ') }}:</strong> {{ r.text }}</div>{% endfor %}
+
+<div class="grid">
+<div>
+  {% if approval %}
+  <div class="panel">
+    <h2 style="margin-top:0">Approved answer #{{ approval.id }} <span class="badge s-{{ approval.status }}">{{ approval.status.replace('_', ' ') }}</span></h2>
+    {% if item.reused %}<div class="good small">Reused for this question from the approved-answer library — no model call was made.</div>{% endif %}
+    {% if approval.status == 'needs_review' %}<div class="bad small"><strong>Not reusable until re-approved:</strong> {{ approval.status_reason }}</div>{% endif %}
+    <div class="answer">{{ approval.answer }}</div>
+    <p class="small muted">Approved by <strong>{{ approval.approved_by }}</strong> at {{ approval.approved_at }}{% if approval.from_item_id %} (from item #{{ approval.from_item_id }}){% endif %}</p>
+    <table class="small"><thead><tr><th>Source passage</th><th>Doc version at approval</th><th>Current</th></tr></thead><tbody>
+    {% for s in approval.sources %}{% set d = corpus.documents.get(s.doc_id) %}
+      <tr><td><code>{{ s.passage_id }}</code></td><td>v{{ s.version }} (rev {{ s.revision }})</td>
+        <td>{% if d %}v{{ d.version }} · {{ corpus.authority(d.id) }}{% else %}missing{% endif %}</td></tr>
+    {% endfor %}</tbody></table>
+    {% if approval.model_answer and approval.model_answer != approval.answer %}
+      <h3>Model suggestion before the reviewer's correction</h3><div class="answer muted">{{ approval.model_answer }}</div>
+    {% endif %}
+    {% if reused_by|length > 1 %}<p class="small muted">Used by: {% for r in reused_by %}<a href="{{ url_for('item_detail', item_id=r.id) }}">{{ r.questionnaire_id }}/{{ r.question_id }}</a>{% if r.reused %} (reused){% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+  </div>
+  {% endif %}
+
+  <div class="panel">
+    {% if draft %}
+      {% set kind_label = {'model': 'Model suggestion', 'reviewer_edit': 'Reviewer edit', 'reused_approval': 'Reused approved answer'}[draft.kind] %}
+      <h2 style="margin-top:0">Current draft · {{ kind_label }}{% if draft.kind == 'reviewer_edit' and item.status != 'approved' %} <span class="badge s-pending">not approved</span>{% endif %}</h2>
+      {% if draft.proposed_status == 'failed' %}
+        <div class="bad small">No draft: {{ draft.note }}</div>
+      {% elif draft.answer %}
+        <div class="answer">{{ draft.answer }}</div>
+      {% else %}
+        <div class="warn small"><strong>No answer proposed.</strong> {{ draft.unresolved_reason }}</div>
+      {% endif %}
+      <p class="small muted">{{ draft.author or 'model' }} · {{ draft.created_at }}{% if draft.note and draft.proposed_status != 'failed' %} · {{ draft.note }}{% endif %}</p>
+      {% if model_draft and draft.kind == 'reviewer_edit' and model_draft.answer %}
+        <h3>Original model suggestion</h3><div class="answer muted">{{ model_draft.answer }}</div>
+      {% endif %}
+      {% if draft.checks %}
+      <h3>Checks</h3>
+      <table class="small"><tbody>
+      {% for c in draft.checks %}<tr><td>{{ '✅' if c.passed else ('❌' if c.blocking else '⚠️') }}</td><td><code>{{ c.name }}</code></td><td>{{ c.detail }}</td></tr>{% endfor %}
+      </tbody></table>
+      {% endif %}
+      {% if draft.kind != 'model' %}<p class="small muted">Reviewer edits and reused answers are not re-checked by the model; the approving reviewer is accountable for the wording. Citations are checked in code (they must exist and be current).</p>{% endif %}
+      {% if draft.support %}
+      <h3>Independent support check (second model pass) <span class="badge s-{{ draft.support.overall }}">{{ draft.support.overall.replace('_', ' ') }}</span></h3>
+      <table class="small"><thead><tr><th>Claim</th><th>Verdict</th><th>Why</th></tr></thead><tbody>
+      {% for c in draft.support.claims %}<tr><td>{{ c.claim }}<br><span class="muted">{{ c.passage_ids|join(', ') }}</span></td><td><span class="badge s-{{ c.verdict }}">{{ c.verdict.replace('_', ' ') }}</span></td><td>{{ c.explanation }}</td></tr>{% endfor %}
+      </tbody></table>
+      {% endif %}
+    {% else %}
+      <p class="muted">Not processed yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Review</h2>
+    <form method="post" action="{{ url_for('approve', item_id=item.id) }}" id="review">
+      <label class="small">Reviewer<input type="text" name="reviewer" value="{{ item.owner or '' }}" required></label>
+      <label class="small">Answer<textarea name="answer">{{ (draft.answer if draft else '') or '' }}</textarea></label>
+      <div class="small"><strong>Supporting passages</strong> (superseded passages cannot support an approved answer)</div>
+      {% set chosen = (draft.citations if draft else []) | map(attribute='passage_id') | list %}
+      {% for doc_id, d in corpus.documents.items() %}{% for p in d.passages %}
+        <label class="cite small"><input type="checkbox" name="citations" value="{{ p.id }}" {% if p.id in chosen %}checked{% endif %} {% if corpus.is_superseded(d.id) %}disabled{% endif %}>
+          <code>{{ p.id }}</code> <span class="muted">v{{ d.version }}{% if corpus.is_superseded(d.id) %} · {{ corpus.authority(d.id) }}{% endif %}</span> — {{ p.text }}</label>
+      {% endfor %}{% endfor %}
+      <label class="small">Note (optional)<input type="text" name="note"></label>
+      <div class="row">
+        <button class="primary" type="submit">Approve</button>
+        <button type="submit" formaction="{{ url_for('edit', item_id=item.id) }}">Save edit as draft (not approved)</button>
+      </div>
+    </form>
+    <form method="post" action="{{ url_for('unresolved', item_id=item.id) }}" class="row">
+      <input type="text" name="reviewer" value="{{ item.owner or '' }}" placeholder="Reviewer" style="max-width:180px" required>
+      <input type="text" name="note" placeholder="Why it stays unresolved" required style="flex:1">
+      <button type="submit">Leave unresolved</button>
+    </form>
+    <form method="post" action="{{ url_for('redraft', item_id=item.id) }}" class="row">
+      <button type="submit">Request a fresh model draft</button><span class="small muted">mode: {{ model_mode }}</span>
+    </form>
+  </div>
+</div>
+
+<div>
+  <div class="panel">
+    <h2 style="margin-top:0">{% if draft and draft.proposed_status == 'unresolved' %}Related passages (not presented as support){% else %}Cited evidence{% endif %}</h2>
+    {% for c in (draft.citations if draft else []) %}
+      {% set p = corpus.passages.get(c.passage_id) %}
+      {% if p %}{% set d = corpus.documents[p.doc_id] %}
+        <div class="passage">
+          <div class="meta"><code>{{ p.id }}</code> · {{ d.id }} v{{ d.version }} · {{ d.date }} · {{ corpus.authority(d.id) }}{% if d.supersedes %} · supersedes {{ d.supersedes }}{% endif %}</div>
+          {{ p.text | highlight(c.excerpt) }}
+          {% if corpus.is_superseded(d.id) %}<div class="bad small">This passage is superseded and cannot support an answer.</div>{% endif %}
+        </div>
+      {% else %}
+        <div class="bad small">Cited passage <code>{{ c.passage_id }}</code> does not exist in the corpus.</div>
+      {% endif %}
+    {% else %}
+      <p class="muted small">No passages cited.</p>
+    {% endfor %}
+  </div>
+
+  {% if conflicts %}
+  <div class="panel">
+    <h2 style="margin-top:0">Conflicting evidence</h2>
+    {% if draft and draft.kind != 'model' %}<p class="small muted">From the latest model draft #{{ model_draft.id }}.</p>{% endif %}
+    {% for c in conflicts %}
+      <div class="{{ 'warn' if c.resolved_by_metadata else 'bad' }} small">
+        <strong>{{ 'Resolved by supersedes metadata' if c.resolved_by_metadata else 'Unresolved conflict — needs a reviewer' }}</strong>
+        <span class="muted">(reported by {{ c.source }})</span><br>
+        {{ c.passage_ids | join(' vs ') }} — {{ c.description }}<br><span class="muted">{{ c.resolution }}</span>
+      </div>
+    {% endfor %}
+    {% for c in conflicts if not c.resolved_by_metadata %}{% if loop.first %}<h3>Current passages that disagree</h3>{% endif %}
+      {% for pid in c.current %}{% set p = corpus.passages.get(pid) %}{% if p %}
+        <div class="passage"><div class="meta"><code>{{ pid }}</code> · {{ corpus.documents[p.doc_id].date }} · {{ corpus.authority(p.doc_id) }}</div>{{ p.text }}</div>
+      {% endif %}{% endfor %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if replaced %}
+  <div class="panel">
+    <h2 style="margin-top:0">Replaced text (kept for reviewers)</h2>
+    {% for r in replaced %}
+      <div class="passage old"><div class="meta"><code>{{ r.passage_id }}</code> · {{ r.doc_id }} v{{ r.version }} · {{ r.date }} · <strong>replaced by {{ r.replaced_by }}</strong></div>{{ r.text }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="panel">
+    <h2 style="margin-top:0">Model calls</h2>
+    {% for c in calls %}
+      <div class="row small">
+        <span class="badge p-{{ c.provenance }}">{{ c.provenance }}</span>
+        <a href="{{ url_for('call_detail', call_id=c.id) }}">#{{ c.id }} {{ c.purpose }}</a>
+        <span class="muted">{{ c.model_served or c.model_requested }}{% if c.recorded_at %} · recorded {{ c.recorded_at }}{% endif %}</span>
+        {% if not c.ok %}<span class="badge s-failed">{{ c.error_type }}</span>{% endif %}
+      </div>
+    {% else %}<p class="small muted">No model calls for this item{% if item.reused %} (answer reused){% endif %}.</p>{% endfor %}
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">History</h2>
+    <table class="small"><tbody>
+    {% for d in drafts %}<tr><td class="muted">{{ d.created_at }}</td><td>draft #{{ d.id }} · {{ d.kind.replace('_', ' ') }}{% if d.author %} · {{ d.author }}{% endif %}</td><td>{{ d.answer or d.unresolved_reason or d.note }}</td></tr>{% endfor %}
+    {% for e in events %}<tr><td class="muted">{{ e.created_at }}</td><td>{{ e.type.replace('_', ' ') }}{% if e.actor %} · {{ e.actor }}{% endif %}</td><td class="muted">{{ e.detail | tojson }}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+</div>
+{% endblock %}

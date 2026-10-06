@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Approved answers</h1>
+<p class="muted small">Only these records are reused, and only for an exact repeat of the question (case and spacing ignored). An approval whose source document version changes moves to <em>needs review</em> and is not reused.</p>
+<div class="panel">
+<table>
+  <thead><tr><th>#</th><th>Question</th><th>Approved answer</th><th>Sources (version at approval)</th><th>Approved</th><th>Status</th><th>Used by</th></tr></thead>
+  <tbody>
+  {% for a in approvals %}
+    <tr>
+      <td>{{ a.id }}</td>
+      <td>{{ a.question_text }}</td>
+      <td>{{ a.answer }}{% if a.model_answer and a.model_answer != a.answer %}<div class="small muted">model suggested: {{ a.model_answer }}</div>{% endif %}</td>
+      <td class="small">{% for s in a.sources %}<code>{{ s.passage_id }}</code> v{{ s.version }}<br>{% endfor %}</td>
+      <td class="small">{{ a.approved_by }}<br><span class="muted">{{ a.approved_at }}</span></td>
+      <td><span class="badge s-{{ a.status }}">{{ a.status.replace('_', ' ') }}</span>{% if a.status_reason %}<div class="small muted">{{ a.status_reason }}</div>{% endif %}</td>
+      <td class="small">{% for i in usage[a.id] %}<a href="{{ url_for('item_detail', item_id=i.id) }}">{{ i.questionnaire_id }}/{{ i.question_id }}</a>{% if i.reused %} (reused){% endif %}<br>{% endfor %}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="7" class="muted">No approved answers yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
